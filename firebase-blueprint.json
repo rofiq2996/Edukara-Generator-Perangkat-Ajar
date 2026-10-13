@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "Token": {
+      "title": "Token",
+      "description": "License token entity for Edukara app access",
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Unique license token code"
+        },
+        "status": {
+          "type": "string",
+          "description": "License token status",
+          "enum": ["Aktif", "Nonaktif"]
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Creation timestamp in ISO format"
+        },
+        "last_ip": {
+          "type": "string",
+          "description": "Last recorded user IP or session info"
+        }
+      },
+      "required": ["token", "status"]
+    }
+  },
+  "firestore": {
+    "/tokens/{tokenId}": {
+      "schema": "Token",
+      "description": "License tokens stored for access authorization and admin control"
+    }
+  }
+}

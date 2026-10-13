@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.size() > 0;
+    }
+
+    function isValidToken(data) {
+      return data.keys().hasAll(['token', 'status']) &&
+        data.keys().hasOnly(['token', 'status', 'created_at', 'last_ip']) &&
+        data.token is string && data.token.size() >= 2 && data.token.size() <= 64 &&
+        data.status in ['Aktif', 'Nonaktif'] &&
+        (!('created_at' in data) || (data.created_at is string && data.created_at.size() <= 64)) &&
+        (!('last_ip' in data) || (data.last_ip is string && data.last_ip.size() <= 256));
+    }
+
+    match /tokens/{tokenId} {
+      allow get: if isValidId(tokenId);
+      allow list: if true;
+      allow create: if isValidId(tokenId) && isValidToken(request.resource.data);
+      allow update: if isValidId(tokenId) && isValidToken(request.resource.data);
+      allow delete: if isValidId(tokenId);
+    }
+  }
+}
