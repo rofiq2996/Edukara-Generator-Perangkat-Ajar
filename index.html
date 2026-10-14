@@ -1008,7 +1008,7 @@
 
         // URL generator untuk direct fallback jika dibutuhkan
         function getApiUrl(key, overrideModel = null) {
-            let modelName = overrideModel || localStorage.getItem('kelasin_ai_model') || 'gemini-2.5-flash';
+            let modelName = overrideModel || localStorage.getItem('kelasin_ai_model') || 'gemini-3.8-flash';
             const cleanKeyVal = key ? key.replace(/\s+/g, "") : "";
             const keyParam = cleanKeyVal ? `?key=${encodeURIComponent(cleanKeyVal)}` : "";
             return `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent${keyParam}`;
@@ -1043,7 +1043,7 @@
             }
 
             // 2. Fallback direct client call jika server proxy tidak merespon
-            const fallbackUrl = getApiUrl(currentKey, 'gemini-2.5-flash');
+            const fallbackUrl = getApiUrl(currentKey, 'gemini-3.8-flash');
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
                 systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined
@@ -1177,7 +1177,7 @@
                 if (response.ok && data.success) {
                     localStorage.setItem('kelasin_ai_gemini_key', keyInput);
                     localStorage.setItem('kelasin_ai_valid_key', 'true');
-                    localStorage.setItem('kelasin_ai_model', data.model || 'gemini-2.5-flash');
+                    localStorage.setItem('kelasin_ai_model', data.model || 'gemini-3.8-flash');
                     userApiKey = keyInput;
                     isAppUnlocked = true;
 
@@ -1201,7 +1201,7 @@
                 console.warn("Direct test fallback:", error);
                 // Fallback direct Google API
                 try {
-                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(keyInput)}`;
+                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(keyInput)}`;
                     const res = await fetch(fallbackUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

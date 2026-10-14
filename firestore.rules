@@ -20,6 +20,10 @@ service cloud.firestore {
         (!('last_ip' in data) || (data.last_ip is string && data.last_ip.size() <= 256));
     }
 
+    match /test/{testId} {
+      allow get: if isValidId(testId);
+    }
+
     match /tokens/{tokenId} {
       allow get: if isValidId(tokenId);
       allow list: if true;

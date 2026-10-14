@@ -24,12 +24,26 @@
         }
       },
       "required": ["token", "status"]
+    },
+    "TestConnection": {
+      "title": "TestConnection",
+      "description": "Connection test entity",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
     }
   },
   "firestore": {
     "/tokens/{tokenId}": {
       "schema": "Token",
       "description": "License tokens stored for access authorization and admin control"
+    },
+    "/test/{testId}": {
+      "schema": "TestConnection",
+      "description": "Connection test path"
     }
   }
 }

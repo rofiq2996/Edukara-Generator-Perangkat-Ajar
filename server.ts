@@ -33,17 +33,18 @@ app.post('/api/gemini/test', async (req, res) => {
 
   try {
     const ai = new GoogleGenAI({ apiKey: keyToUse });
-    let usedModel = 'gemini-2.5-flash';
+    const usedModel = 'gemini-3.8-flash';
     let reply = 'OK';
 
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: 'Balas hanya dengan kata OK'
+      // 1. Interactions API dengan model gemini-3.8-flash
+      const interaction = await ai.interactions.create({
+        model: 'gemini-3.8-flash',
+        input: 'Balas hanya dengan kata OK'
       });
-      reply = response.text || 'OK';
+      reply = interaction.output_text || 'OK';
     } catch {
-      usedModel = 'gemini-3.8-flash';
+      // 2. Fallback ke models.generateContent dengan gemini-3.8-flash
       const response = await ai.models.generateContent({
         model: 'gemini-3.8-flash',
         contents: 'Balas hanya dengan kata OK'
@@ -101,14 +102,27 @@ app.post('/api/gemini/generate', async (req, res) => {
     let text = '';
 
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: systemInstruction ? { systemInstruction } : undefined
+      // 1. Interactions API dengan model gemini-3.8-flash
+      const interaction = await ai.interactions.create({
+        model: 'gemini-3.8-flash',
+        input: prompt,
+        system_instruction: systemInstruction || undefined
       });
-      text = response.text || '';
+
+      if (interaction.output_text) {
+        text = interaction.output_text;
+      } else if (interaction.steps && Array.isArray(interaction.steps)) {
+        for (const step of interaction.steps) {
+          if (step.type === 'model_output' && Array.isArray(step.content)) {
+            const textContent = step.content.find((c: any) => c.type === 'text') as any;
+            if (textContent && textContent.text) {
+              text += textContent.text;
+            }
+          }
+        }
+      }
     } catch {
-      // Fallback model
+      // 2. Fallback ke models.generateContent dengan gemini-3.8-flash
       const fallbackResponse = await ai.models.generateContent({
         model: 'gemini-3.8-flash',
         contents: prompt,
