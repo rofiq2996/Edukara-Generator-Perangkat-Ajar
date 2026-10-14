@@ -739,6 +739,22 @@
                 </div>
             </div>
 
+            <!-- Pilihan Model Gemini -->
+            <div class="mb-3">
+                <div class="flex items-center justify-between mb-1">
+                    <label class="text-[11px] font-bold text-slate-700">Model Gemini AI</label>
+                    <span class="text-[10px] text-emerald-600 font-semibold"><i class="fa-solid fa-bolt mr-1"></i>Multi-Model Aktif</span>
+                </div>
+                <select id="modelSelectInput" class="w-full border border-slate-300 rounded-lg p-2 text-xs focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50 transition font-medium text-slate-700">
+                    <option value="auto">⚡ Otomatis (Auto-Detect Model Paling Cepat & Stabil)</option>
+                    <option value="gemini-2.5-flash">🌟 Gemini 2.5 Flash (Sangat Stabil & Cepat - Rekomendasi)</option>
+                    <option value="gemini-3.8-flash">🚀 Gemini 3.8 Flash (Fitur Terbaru)</option>
+                    <option value="gemini-3.1-flash-lite">🍃 Gemini 3.1 Flash Lite (Hemat Kuota)</option>
+                    <option value="gemini-flash-latest">🔄 Gemini Flash Latest (Versi Rilis Terkini)</option>
+                </select>
+                <p class="text-[10px] text-slate-500 mt-1 leading-tight">Sistem memiliki failover otomatis: jika salah satu model mengalami lonjakan trafik (503), sistem akan beralih ke model aktif lainnya.</p>
+            </div>
+
             <!-- Feedback Area -->
             <div id="keyTestFeedback" class="text-[11px] text-center mb-3 min-h-[18px]"></div>
 
@@ -1008,66 +1024,97 @@
 
         // URL generator untuk direct fallback jika dibutuhkan
         function getApiUrl(key, overrideModel = null) {
-            let modelName = overrideModel || localStorage.getItem('kelasin_ai_model') || 'gemini-3.8-flash';
+            let modelName = overrideModel || localStorage.getItem('kelasin_ai_model') || 'gemini-2.5-flash';
+            if (modelName === 'auto') modelName = 'gemini-2.5-flash';
             const cleanKeyVal = key ? key.replace(/\s+/g, "") : "";
             const keyParam = cleanKeyVal ? `?key=${encodeURIComponent(cleanKeyVal)}` : "";
             return `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent${keyParam}`;
         }
 
-        // Fungsi terpadu untuk memanggil Gemini AI dengan API Key Pribadi
+        // Fungsi terpadu untuk memanggil Gemini AI dengan API Key Pribadi & failover multi-model
         async function callGeminiAi(prompt, systemInstruction = "") {
-            const currentKey = (userApiKey || localStorage.getItem('kelasin_ai_gemini_key') || "").trim();
+            const currentKey = (userApiKey || localStorage.getItem('kelasin_ai_gemini_key') || "").trim().replace(/\s+/g, "");
             if (!currentKey) {
                 openKeyModal(true);
                 throw new Error("API Key Gemini pribadi wajib diisi. Silakan masukkan API Key Anda.");
             }
+            const currentModel = localStorage.getItem('kelasin_ai_model') || 'auto';
 
-            // 1. Coba melalui backend server Edukara Proxy
+            // 1. Coba melalui backend server Edukara Proxy dengan auto multi-model cascade
             try {
                 const response = await fetch('/api/gemini/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt, systemInstruction, apiKey: currentKey })
+                    body: JSON.stringify({ prompt, systemInstruction, apiKey: currentKey, model: currentModel })
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    if (data && data.text) return data.text;
+                    if (data && data.text) {
+                        if (data.modelUsed) {
+                            localStorage.setItem('kelasin_ai_model', data.modelUsed);
+                        }
+                        return data.text;
+                    }
                 } else {
                     const err = await response.json().catch(() => ({}));
                     if (err && err.error) {
-                        throw new Error(err.error);
+                        if (err.error.includes('tidak valid') || err.error.includes('kedaluwarsa')) {
+                            throw new Error(err.error);
+                        }
                     }
                 }
             } catch (err) {
-                console.warn("Server AI proxy notice, mencoba direct fallback:", err);
+                if (err && err.message && (err.message.includes('tidak valid') || err.message.includes('kedaluwarsa'))) {
+                    throw err;
+                }
+                console.warn("Server AI proxy notice, mencoba direct multi-model fallback:", err);
             }
 
-            // 2. Fallback direct client call jika server proxy tidak merespon
-            const fallbackUrl = getApiUrl(currentKey, 'gemini-3.8-flash');
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined
-            };
-            const res = await fetch(fallbackUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                let msg = errData?.error?.message || `Gagal memanggil Gemini API (${res.status}).`;
-                if (msg.includes('API key not valid')) {
-                    msg = "API Key Gemini pribadi Anda tidak valid. Silakan periksa kembali API Key Anda.";
-                } else if (msg.includes('RESOURCE_EXHAUSTED')) {
-                    msg = "Kuota API Key pribadi Anda habis. Silakan buat API Key baru di aistudio.google.com.";
+            // 2. Direct client fallback dengan multi-model cascade
+            const candidateModels = [
+                currentModel && currentModel !== 'auto' ? currentModel : null,
+                'gemini-2.5-flash',
+                'gemini-3.8-flash',
+                'gemini-3.1-flash-lite',
+                'gemini-flash-latest'
+            ].filter(Boolean);
+
+            let lastErrMsg = "Gagal memanggil Gemini API.";
+            for (const m of candidateModels) {
+                try {
+                    const fallbackUrl = getApiUrl(currentKey, m);
+                    const payload = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                        systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined
+                    };
+                    const res = await fetch(fallbackUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) {
+                        const result = await res.json();
+                        if (result.candidates && result.candidates[0]?.content?.parts?.[0]?.text) {
+                            localStorage.setItem('kelasin_ai_model', m);
+                            return result.candidates[0].content.parts[0].text;
+                        }
+                    } else {
+                        const errData = await res.json().catch(() => ({}));
+                        const rawMsg = errData?.error?.message || "";
+                        if (rawMsg.includes('API key not valid') || rawMsg.includes('API_KEY_INVALID')) {
+                            throw new Error("API Key Gemini pribadi Anda tidak valid. Silakan periksa kembali API Key Anda.");
+                        }
+                        lastErrMsg = rawMsg || `Gagal pada model ${m} (${res.status})`;
+                    }
+                } catch (netOrValErr) {
+                    if (netOrValErr.message && (netOrValErr.message.includes('tidak valid') || netOrValErr.message.includes('kedaluwarsa'))) {
+                        throw netOrValErr;
+                    }
+                    console.warn(`Direct model ${m} fallback error:`, netOrValErr);
                 }
-                throw new Error(msg);
             }
-            const result = await res.json();
-            if (result.candidates && result.candidates[0]?.content?.parts?.[0]?.text) {
-                return result.candidates[0].content.parts[0].text;
-            }
-            throw new Error("Format respons tidak valid.");
+
+            throw new Error(lastErrMsg || "Gagal memproses prompt dengan Gemini AI. Silakan coba lagi.");
         }
 
         // Lock state check
@@ -1106,6 +1153,10 @@
 
         function openKeyModal(forceUnlockBtn = false) {
             document.getElementById('apiKeyInput').value = localStorage.getItem('kelasin_ai_gemini_key') || "";
+            const sel = document.getElementById('modelSelectInput');
+            if (sel) {
+                sel.value = localStorage.getItem('kelasin_ai_model') || 'auto';
+            }
             document.getElementById('keyTestFeedback').innerHTML = ""; 
             document.getElementById('keyModal').classList.remove('hidden');
             
@@ -1113,8 +1164,9 @@
             const badge = document.getElementById('currentAiStatusBadge');
             if (badge) {
                 if (userApiKey) {
+                    const activeM = localStorage.getItem('kelasin_ai_model') || 'Aktif';
                     badge.className = "mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800";
-                    badge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> API Key Pribadi Aktif';
+                    badge.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> API Key Pribadi Aktif (${activeM})`;
                 } else {
                     badge.className = "mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800";
                     badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1.5"></i> API Key Pribadi Belum Diisi';
@@ -1151,7 +1203,9 @@
         }
 
         async function testAndSaveApiKey() {
-            const keyInput = document.getElementById('apiKeyInput').value.trim();
+            const rawInput = document.getElementById('apiKeyInput').value;
+            const keyInput = (rawInput || "").trim().replace(/\s+/g, "");
+            const selectedModel = document.getElementById('modelSelectInput') ? document.getElementById('modelSelectInput').value : 'auto';
             const feedback = document.getElementById('keyTestFeedback');
             const btn = document.getElementById('btnTestKey');
 
@@ -1160,16 +1214,16 @@
                 return;
             }
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Menguji Koneksi...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Menguji Semua Model...';
             btn.disabled = true;
-            feedback.innerHTML = '<span class="text-blue-600 font-semibold"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Menguji API Key ke Gemini AI...</span>';
+            feedback.innerHTML = '<span class="text-blue-600 font-semibold"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memvalidasi API Key & menguji respon model Gemini...</span>';
 
+            // 1. Uji lewat proxy server backend Edukara (dengan multi-model cascade)
             try {
-                // 1. Uji lewat proxy server backend Edukara
                 const response = await fetch('/api/gemini/test', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ apiKey: keyInput })
+                    body: JSON.stringify({ apiKey: keyInput, preferredModel: selectedModel })
                 });
 
                 const data = await response.json();
@@ -1177,31 +1231,46 @@
                 if (response.ok && data.success) {
                     localStorage.setItem('kelasin_ai_gemini_key', keyInput);
                     localStorage.setItem('kelasin_ai_valid_key', 'true');
-                    localStorage.setItem('kelasin_ai_model', data.model || 'gemini-3.8-flash');
+                    localStorage.setItem('kelasin_ai_model', data.model || 'gemini-2.5-flash');
                     userApiKey = keyInput;
                     isAppUnlocked = true;
 
-                    feedback.innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Berhasil! API Key Aktif (${data.model || 'Gemini AI'}).</span>`;
+                    feedback.innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Berhasil! Model Aktif: ${data.modelLabel || data.model}.</span>`;
                     
                     setTimeout(() => {
                         unlockApp();
                         btn.innerHTML = '<i class="fa-solid fa-plug mr-1.5"></i> Uji Koneksi & Simpan API Key Pribadi';
                         btn.disabled = false;
-                        showNotification("API Key pribadi Anda berhasil disimpan dan aktif!");
+                        showNotification(`API Key Gemini aktif! Menggunakan model ${data.model || 'Gemini'}.`);
                     }, 800);
                     return;
                 } else {
-                    const errorMsg = data.error || "Gagal memanggil Gemini API.";
-                    feedback.innerHTML = `<div class="text-rose-600 text-[11px] text-left bg-rose-50 p-2.5 rounded-lg border border-rose-200 leading-relaxed"><i class="fa-solid fa-triangle-exclamation mr-1 text-rose-500"></i> ${errorMsg}</div>`;
-                    btn.innerHTML = '<i class="fa-solid fa-plug mr-1.5"></i> Coba Lagi';
-                    btn.disabled = false;
-                    return;
+                    const isKeyExplicitlyBad = data.error && (data.error.includes('tidak valid') || data.error.includes('dinonaktifkan'));
+                    if (isKeyExplicitlyBad) {
+                        feedback.innerHTML = `<div class="text-rose-600 text-[11px] text-left bg-rose-50 p-2.5 rounded-lg border border-rose-200 leading-relaxed"><i class="fa-solid fa-triangle-exclamation mr-1 text-rose-500"></i> ${data.error}</div>`;
+                        btn.innerHTML = '<i class="fa-solid fa-plug mr-1.5"></i> Coba Lagi';
+                        btn.disabled = false;
+                        return;
+                    }
+                    console.warn("Server test response not OK, mencoba direct multi-model fallback...");
                 }
-            } catch (error) {
-                console.warn("Direct test fallback:", error);
-                // Fallback direct Google API
+            } catch (err) {
+                console.warn("Server test fetch error, mencoba direct client fallback:", err);
+            }
+
+            // 2. Direct client fallback: uji beberapa model Gemini langsung dari browser
+            const clientModelsToProbe = [
+                selectedModel && selectedModel !== 'auto' ? selectedModel : null,
+                'gemini-2.5-flash',
+                'gemini-3.8-flash',
+                'gemini-3.1-flash-lite',
+                'gemini-flash-latest'
+            ].filter(Boolean);
+
+            let lastProbeError = "API Key tidak dapat terhubung ke model Gemini.";
+            for (const modelCandidate of clientModelsToProbe) {
                 try {
-                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(keyInput)}`;
+                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelCandidate}:generateContent?key=${encodeURIComponent(keyInput)}`;
                     const res = await fetch(fallbackUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1210,32 +1279,42 @@
                     if (res.ok) {
                         localStorage.setItem('kelasin_ai_gemini_key', keyInput);
                         localStorage.setItem('kelasin_ai_valid_key', 'true');
+                        localStorage.setItem('kelasin_ai_model', modelCandidate);
                         userApiKey = keyInput;
                         isAppUnlocked = true;
-                        feedback.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Berhasil Terhubung! API Key Disimpan.</span>';
+
+                        feedback.innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Berhasil Terhubung! Menggunakan ${modelCandidate}.</span>`;
                         setTimeout(() => {
                             unlockApp();
                             btn.innerHTML = '<i class="fa-solid fa-plug mr-1.5"></i> Uji Koneksi & Simpan API Key Pribadi';
                             btn.disabled = false;
-                            showNotification("API Key pribadi berhasil terhubung!");
+                            showNotification(`API Key Gemini berhasil aktif (${modelCandidate})!`);
                         }, 800);
                         return;
                     } else {
                         const err = await res.json().catch(() => ({}));
-                        let errMsg = err?.error?.message || "API Key ditolak. Pastikan key aktif & valid.";
-                        if (errMsg.includes('API key not valid')) {
-                            errMsg = "API Key Gemini tidak valid. Silakan salin ulang dari aistudio.google.com";
+                        const errMsg = err?.error?.message || "";
+                        if (errMsg.includes('API key not valid') || errMsg.includes('API_KEY_INVALID')) {
+                            feedback.innerHTML = `<div class="text-rose-600 text-[11px] text-left bg-rose-50 p-2.5 rounded-lg border border-rose-200"><i class="fa-solid fa-circle-xmark mr-1"></i> API Key Gemini tidak valid atau dinonaktifkan. Silakan salin ulang dari aistudio.google.com</div>`;
+                            btn.innerHTML = '<i class="fa-solid fa-plug mr-1.5"></i> Coba Lagi';
+                            btn.disabled = false;
+                            return;
                         } else if (errMsg.includes('RESOURCE_EXHAUSTED')) {
-                            errMsg = "Batas kuota API Key ini telah habis. Silakan buat API Key baru di aistudio.google.com dengan akun Google lain.";
+                            lastProbeError = "Batas kuota gratis (Quota Exceeded) untuk API Key ini telah habis. Silakan buat API Key baru di aistudio.google.com.";
+                        } else if (errMsg.includes('503') || errMsg.includes('high demand')) {
+                            lastProbeError = `Model ${modelCandidate} sedang mengalami lonjakan beban. Menguji model lain...`;
+                        } else {
+                            lastProbeError = errMsg || lastProbeError;
                         }
-                        feedback.innerHTML = `<div class="text-rose-600 text-[11px] text-left bg-rose-50 p-2.5 rounded-lg border border-rose-200"><i class="fa-solid fa-circle-xmark mr-1"></i> ${errMsg}</div>`;
                     }
-                } catch(netErr) {
-                    feedback.innerHTML = '<span class="text-rose-600 font-bold"><i class="fa-solid fa-wifi mr-1"></i> Gagal koneksi internet. Cek koneksi Anda.</span>';
+                } catch (probeNetErr) {
+                    lastProbeError = "Koneksi internet bermasalah. Periksa jaringan Anda.";
                 }
-                btn.innerHTML = '<i class="fa-solid fa-plug mr-1.5"></i> Coba Lagi';
-                btn.disabled = false;
             }
+
+            feedback.innerHTML = `<div class="text-rose-600 text-[11px] text-left bg-rose-50 p-2.5 rounded-lg border border-rose-200"><i class="fa-solid fa-circle-xmark mr-1"></i> ${lastProbeError}</div>`;
+            btn.innerHTML = '<i class="fa-solid fa-plug mr-1.5"></i> Coba Lagi';
+            btn.disabled = false;
         }
 
         function updateKeyButtonState() {
