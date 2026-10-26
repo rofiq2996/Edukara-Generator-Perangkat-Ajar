@@ -680,7 +680,7 @@
                     </div>
 
                     <div id="paperView" class="hidden w-full max-w-[210mm] bg-white shadow-xl p-12 mt-2 mb-10 border border-gray-300 overflow-x-auto">
-                        <div id="preview-content" class="w-full break-words min-w-full font-serif">
+                        <div id="preview-content" class="w-full break-words min-w-full" style="font-family: 'Arial', sans-serif;">
                             <!-- AI content will be injected here -->
                         </div>
                     </div>
@@ -2026,29 +2026,29 @@ Jika Mapel adalah Pendidikan Agama Islam (PAI) jenjang SD, WAJIB gunakan acuan i
             const opsiText = batasOpsi === 'E' ? 'A, B, C, D, E' : (batasOpsi === 'D' ? 'A, B, C, D' : 'A, B, C');
             
             const kopTemplate = `
-<table style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 20px;">
+<table style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 20px; font-family: Arial, sans-serif;">
     <tr>
-        <td colspan="2" style="text-align: center; border: 1px solid black; padding: 10px; background-color: #d1fae5;">
-            <span style="font-size: 14pt; font-weight: bold; text-transform: uppercase; color: #065f46;">${data.namaSekolah}</span><br>
-            <span style="font-weight: normal; font-size: 10pt; color: #065f46;">Alamat : ....................................................</span>
+        <td colspan="2" style="text-align: center; border: 1px solid black; padding: 10px; background-color: #d1fae5; font-family: Arial, sans-serif;">
+            <span style="font-family: Arial, sans-serif; font-size: 14pt; font-weight: bold; text-transform: uppercase; color: #065f46;">${data.namaSekolah}</span><br>
+            <span style="font-family: Arial, sans-serif; font-weight: normal; font-size: 10pt; color: #065f46;">Alamat : ....................................................</span>
         </td>
     </tr>
-    <tr><td style="border: 1px solid black; padding: 6px; width: 30%;"><strong>Nama Penyusun</strong></td><td style="border: 1px solid black; padding: 6px;">: ${data.namaGuru}</td></tr>
-    <tr><td style="border: 1px solid black; padding: 6px;"><strong>Mata Pelajaran</strong></td><td style="border: 1px solid black; padding: 6px;">: ${mapelUtama}</td></tr>
-    <tr><td style="border: 1px solid black; padding: 6px;"><strong>Fase / Kelas</strong></td><td style="border: 1px solid black; padding: 6px;">: ${data.fase} / ${data.kelas}</td></tr>
-    <tr><td style="border: 1px solid black; padding: 6px;"><strong>Tahun Ajaran</strong></td><td style="border: 1px solid black; padding: 6px;">: ${data.tahunAjaran}</td></tr>
+    <tr><td style="border: 1px solid black; padding: 6px; width: 30%; font-family: Arial, sans-serif;"><strong>Nama Penyusun</strong></td><td style="border: 1px solid black; padding: 6px; font-family: Arial, sans-serif;">: ${data.namaGuru}</td></tr>
+    <tr><td style="border: 1px solid black; padding: 6px; font-family: Arial, sans-serif;"><strong>Mata Pelajaran</strong></td><td style="border: 1px solid black; padding: 6px; font-family: Arial, sans-serif;">: ${mapelUtama}</td></tr>
+    <tr><td style="border: 1px solid black; padding: 6px; font-family: Arial, sans-serif;"><strong>Fase / Kelas</strong></td><td style="border: 1px solid black; padding: 6px; font-family: Arial, sans-serif;">: ${data.fase} / ${data.kelas}</td></tr>
+    <tr><td style="border: 1px solid black; padding: 6px; font-family: Arial, sans-serif;"><strong>Tahun Ajaran</strong></td><td style="border: 1px solid black; padding: 6px; font-family: Arial, sans-serif;">: ${data.tahunAjaran}</td></tr>
 </table>`;
 
             const ttdTemplate = `
-<table class="no-border" style="width: 100%; border: none; text-align: center; margin-top: 30px; page-break-inside: avoid;">
+<table class="no-border" style="width: 100%; border: none; text-align: center; margin-top: 30px; page-break-inside: avoid; font-family: Arial, sans-serif;">
     <tr>
-        <td style="width: 50%; border: none; padding: 0;">
-            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center;">Mengetahui,</p>
-            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center;">Kepala Sekolah</p>
+        <td style="width: 50%; border: none; padding: 0; font-family: Arial, sans-serif;">
+            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center; font-family: Arial, sans-serif;">Mengetahui,</p>
+            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center; font-family: Arial, sans-serif;">Kepala Sekolah</p>
         </td>
-        <td style="width: 50%; border: none; padding: 0;">
-            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center;">${data.kota}, ${data.tanggal}</p>
-            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center;">Guru Mata Pelajaran</p>
+        <td style="width: 50%; border: none; padding: 0; font-family: Arial, sans-serif;">
+            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center; font-family: Arial, sans-serif;">${data.kota}, ${data.tanggal}</p>
+            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center; font-family: Arial, sans-serif;">Guru Mata Pelajaran</p>
         </td>
     </tr>
     <tr>
@@ -2056,13 +2056,13 @@ Jika Mapel adalah Pendidikan Agama Islam (PAI) jenjang SD, WAJIB gunakan acuan i
         <td style="height: 70px; border: none; padding: 0;"></td>
     </tr>
     <tr>
-        <td style="border: none; padding: 0;">
-            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center;"><b><u>${data.namaKepsek}</u></b></p>
-            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center;">NIP. ${data.nipKepsek || '-'}</p>
+        <td style="border: none; padding: 0; font-family: Arial, sans-serif;">
+            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center; font-family: Arial, sans-serif;"><b><u>${data.namaKepsek}</u></b></p>
+            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center; font-family: Arial, sans-serif;">NIP. ${data.nipKepsek || '-'}</p>
         </td>
-        <td style="border: none; padding: 0;">
-            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center;"><b><u>${data.namaGuru}</u></b></p>
-            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center;">NIP/NUPTK. ${data.nipGuru || '-'}</p>
+        <td style="border: none; padding: 0; font-family: Arial, sans-serif;">
+            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center; font-family: Arial, sans-serif;"><b><u>${data.namaGuru}</u></b></p>
+            <p style="margin: 0; padding: 0; line-height: 1.15; text-align: center; font-family: Arial, sans-serif;">NIP/NUPTK. ${data.nipGuru || '-'}</p>
         </td>
     </tr>
 </table>`;
@@ -2071,11 +2071,11 @@ Jika Mapel adalah Pendidikan Agama Islam (PAI) jenjang SD, WAJIB gunakan acuan i
 ATURAN TEKNIS SANGAT KETAT (WAJIB DIPATUHI AGAR TIDAK RUSAK DI MS WORD):
 1. OUTPUT 100% MENGGUNAKAN HTML MURNI (Gunakan <h1>, <h2>, <b>, <i>, <ul>, <ol>, <table>, dll).
 2. JANGAN GUNAKAN SINTAKS MARKDOWN SAMA SEKALI.
-3. WAJIB GUNAKAN <table style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 20px;"> dan <td style="border: 1px solid black; padding: 6px; text-align: justify;">.
+3. WAJIB GUNAKAN <table style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 20px; font-family: Arial, sans-serif;"> dan <td style="border: 1px solid black; padding: 6px; text-align: justify; font-family: Arial, sans-serif;">.
 4. Berikan WARNA LATAR (background-color) pada header (th) dengan warna #d1fae5 atau #a7f3d0 agar menarik (Gunakan warna cerah/pastel).
 5. SELALU AWALI DOKUMEN DENGAN KOP IDENTITAS BERIKUT (Salin kode HTML ini persis di awal dokumen):
 ${kopTemplate}
-6. SEMUA PARAGRAF TEKS WAJIB RATA KANAN KIRI (JUSTIFY), tambahkan style="text-align: justify;" pada setiap <p> atau <div> yang berisi narasi.
+6. SEMUA PARAGRAF TEKS WAJIB RATA KANAN KIRI (JUSTIFY), tambahkan style="text-align: justify; font-family: Arial, sans-serif;" pada setiap <p> atau <div> yang berisi narasi.
 7. TEKS ARAB WAJIB DIBUNGKUS SEPERTI INI: Gunakan <div class="arabic-text" dir="rtl" style="font-family: 'KFGQPC Uthman Taha Naskh', 'Mushaf Madinah', 'Traditional Arabic', serif; font-size: 18pt; text-align: right; direction: rtl; margin: 10px 0;">[TEKS ARAB]</div> untuk ayat/hadis utuh, and gunakan <span class="arabic-text" dir="rtl" style="font-family: 'KFGQPC Uthman Taha Naskh', 'Mushaf Madinah', 'Traditional Arabic', serif; font-size: 16pt; direction: rtl;">[TEKS ARAB]</span> untuk kata/potongan ayat di dalam kalimat Latin.
 8. JANGAN pernah menggunakan tag <img> untuk logo.
 9. WAJIB Gunakan <div class="page-break"></div> setiap kali memisahkan halaman (misal: sebelum Kunci Jawaban atau Lampiran). JANGAN pisahkan halaman untuk Lembar Pengesahan, biarkan menyambung.
@@ -2256,38 +2256,158 @@ STRUKTUR DOKUMEN WAJIB:
             }
         }
 
+        // Helper untuk menyamakan font & gaya elemen HTML sebelum diekspor ke MS Word
+        function prepareHtmlForWordExport(rawHtml) {
+            const previewEl = document.getElementById('preview-content');
+            // Ambil font yang benar-benar tampil di preview (default Arial, sans-serif)
+            let previewFontFamily = 'Arial, sans-serif';
+            if (previewEl) {
+                const computedFont = window.getComputedStyle(previewEl).fontFamily;
+                if (computedFont) {
+                    previewFontFamily = computedFont.replace(/"/g, "'");
+                }
+            }
+            const primaryFontName = previewFontFamily.split(',')[0].replace(/['"]/g, '').trim() || 'Arial';
+            const arabicFontStack = "'KFGQPC Uthman Taha Naskh', 'Mushaf Madinah', 'Traditional Arabic', 'Amiri', serif";
+
+            const container = document.createElement('div');
+            container.innerHTML = rawHtml.replace(/<div class="page-break"[^>]*>.*?<\/div>/gi, '<br clear="all" style="page-break-before:always; mso-break-type:section-break;" />');
+
+            const allElements = container.querySelectorAll('*');
+            allElements.forEach(el => {
+                const tag = el.tagName ? el.tagName.toLowerCase() : '';
+                const isArabic = el.classList.contains('arabic-text') ||
+                                 el.getAttribute('dir') === 'rtl' ||
+                                 (el.getAttribute('style') && /direction\s*:\s*rtl/i.test(el.getAttribute('style'))) ||
+                                 el.closest('.arabic-text, [dir="rtl"]');
+
+                if (isArabic) {
+                    el.style.fontFamily = arabicFontStack;
+                    el.style.setProperty('mso-bidi-font-family', 'KFGQPC Uthman Taha Naskh');
+                    el.style.setProperty('mso-ascii-font-family', primaryFontName);
+                    el.style.setProperty('mso-hansi-font-family', primaryFontName);
+                    if (tag === 'div') {
+                        el.style.fontSize = el.style.fontSize || '18pt';
+                        el.style.lineHeight = el.style.lineHeight || '1.8';
+                        el.style.textAlign = 'right';
+                        el.setAttribute('dir', 'rtl');
+                    } else if (tag === 'span') {
+                        el.style.fontSize = el.style.fontSize || '16pt';
+                        el.setAttribute('dir', 'rtl');
+                    }
+                } else {
+                    el.style.fontFamily = previewFontFamily;
+                    el.style.setProperty('mso-ascii-font-family', primaryFontName);
+                    el.style.setProperty('mso-hansi-font-family', primaryFontName);
+                    el.style.setProperty('mso-fareast-font-family', primaryFontName);
+                    el.style.setProperty('mso-bidi-font-family', 'Traditional Arabic');
+                }
+
+                // Samakan gaya heading, tabel, dan paragraf dengan tampilan preview
+                if (tag === 'h1') {
+                    el.style.fontSize = '16pt';
+                    el.style.fontWeight = 'bold';
+                    el.style.textAlign = 'center';
+                    el.style.color = '#047857';
+                    el.style.textTransform = 'uppercase';
+                    el.style.borderBottom = '2pt double #047857';
+                    el.style.paddingBottom = '4pt';
+                    el.style.marginTop = '14pt';
+                    el.style.marginBottom = '8pt';
+                } else if (tag === 'h2') {
+                    el.style.fontSize = '13pt';
+                    el.style.fontWeight = 'bold';
+                    el.style.textAlign = 'left';
+                    el.style.color = '#065f46';
+                    el.style.textTransform = 'uppercase';
+                    el.style.borderBottom = '1.5pt solid #059669';
+                    el.style.paddingBottom = '3pt';
+                    el.style.marginTop = '14pt';
+                    el.style.marginBottom = '6pt';
+                } else if (tag === 'h3') {
+                    el.style.fontSize = '11.5pt';
+                    el.style.fontWeight = 'bold';
+                    el.style.textAlign = 'left';
+                    el.style.color = '#111827';
+                    el.style.marginTop = '10pt';
+                    el.style.marginBottom = '4pt';
+                } else if (tag === 'th') {
+                    const inNoBorder = el.closest('.no-border');
+                    if (!inNoBorder) {
+                        if (!el.style.backgroundColor) el.style.backgroundColor = '#d1fae5';
+                        if (!el.style.color) el.style.color = '#065f46';
+                        el.style.fontWeight = 'bold';
+                        el.style.textAlign = 'center';
+                        el.style.border = '1pt solid #000000';
+                        el.style.padding = '5pt';
+                    }
+                } else if (tag === 'td') {
+                    const inNoBorder = el.closest('.no-border');
+                    if (inNoBorder) {
+                        el.style.border = 'none';
+                        el.style.backgroundColor = 'transparent';
+                    } else {
+                        if (!el.style.border) el.style.border = '1pt solid #000000';
+                        if (!el.style.padding) el.style.padding = '5pt';
+                        if (!el.style.textAlign) el.style.textAlign = 'justify';
+                        el.style.verticalAlign = 'top';
+                    }
+                } else if (tag === 'p' || tag === 'li') {
+                    if (!el.style.textAlign && !isArabic) {
+                        const inNoBorder = el.closest('.no-border');
+                        if (!inNoBorder) {
+                            el.style.textAlign = 'justify';
+                        }
+                    }
+                }
+            });
+
+            return {
+                processedHtml: container.innerHTML,
+                primaryFontName,
+                previewFontFamily
+            };
+        }
+
         // Export to Word logic
         document.getElementById('btnDownload').addEventListener('click', () => {
             if (!generatedMarkdown) return;
+
+            const { processedHtml, primaryFontName, previewFontFamily } = prepareHtmlForWordExport(generatedMarkdown);
 
             const wordHtml = `
 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
 <head>
     <meta charset="utf-8">
     <title>Dokumen Edukara</title>
-    <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+    <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
     <style>
         @page WordSection1 { size: 595.3pt 841.9pt; margin: 72pt; }
         @page WordSectionProsem { size: 841.9pt 595.3pt; margin: 36pt; }
         div.WordSection1 { page: WordSection1; }
         div.WordSectionProsem { page: WordSectionProsem; }
         
-        /* Mengunci semua elemen ke Arial untuk dokumen MS Word */
-        body, p, div:not(.arabic-text), span:not(.arabic-text), table, td, th, li, ul, ol, h1, h2, h3, h4, h5, h6 { 
-            font-family: "Arial", sans-serif !important; 
+        /* Mengunci semua elemen & style bawaan MS Word (MsoNormal / MsoNormalTable) ke font yang sama persis dengan Preview (${primaryFontName}) */
+        /* Catatan: Jangan gunakan selector CSS3 :not() karena MS Word akan mengabaikan seluruh baris aturan CSS tersebut */
+        body, p, p.MsoNormal, li.MsoNormal, div.MsoNormal, table, table.MsoNormalTable, tbody, thead, tr, td, th, div, span, li, ul, ol, h1, h2, h3, h4, h5, h6, b, strong, i, em, u, a { 
+            font-family: "${primaryFontName}", Arial, sans-serif !important;
+            mso-ascii-font-family: "${primaryFontName}" !important;
+            mso-hansi-font-family: "${primaryFontName}" !important;
+            mso-fareast-font-family: "${primaryFontName}" !important;
+            mso-bidi-font-family: "Traditional Arabic" !important;
         }
-        body { font-size: 12pt; line-height: 1.5; color: #000; text-align: justify; }
+        body { font-size: 11.5pt; line-height: 1.5; color: #111827; text-align: justify; }
         
         /* Pastikan elemen teks rata kanan kiri (Justify) */
-        p, li, div { text-align: justify; margin-top: 0; margin-bottom: 6pt; }
+        p, li, div { text-align: justify; margin-top: 0; margin-bottom: 6pt; line-height: 1.5; }
         
         /* Pewarnaan Heading & Ornamen Sama Seperti Web Preview */
         h1 { font-size: 16pt; font-weight: bold; text-align: center; color: #047857; border-bottom: 2pt double #047857; margin-top: 12pt; margin-bottom: 6pt; text-transform: uppercase; }
-        h2 { font-size: 14pt; font-weight: bold; color: #065f46; border-bottom: 1pt solid #059669; margin-top: 16pt; margin-bottom: 8pt; padding-bottom: 4pt; text-transform: uppercase; }
-        h3 { font-size: 12pt; font-weight: bold; color: #111827; margin-top: 12pt; margin-bottom: 6pt; text-align: left; }
+        h2 { font-size: 13pt; font-weight: bold; color: #065f46; border-bottom: 1.5pt solid #059669; margin-top: 14pt; margin-bottom: 6pt; padding-bottom: 3pt; text-transform: uppercase; text-align: left; }
+        h3 { font-size: 11.5pt; font-weight: bold; color: #111827; margin-top: 10pt; margin-bottom: 4pt; text-align: left; }
         
         table { width: 100%; border-collapse: collapse !important; margin-bottom: 15pt; table-layout: fixed; }
-        table, th, td { border: 1pt solid black; padding: 5pt; text-align: left; vertical-align: top; word-wrap: break-word; overflow-wrap: break-word; }
+        table, th, td { border: 1pt solid black; padding: 5pt; text-align: left; vertical-align: top; word-wrap: break-word; overflow-wrap: break-word; font-size: 11pt; }
         td { text-align: justify; }
         
         /* Pewarnaan Header Tabel (th) */
@@ -2297,21 +2417,22 @@ STRUKTUR DOKUMEN WAJIB:
         .no-border, .no-border th, .no-border td { border: none !important; background-color: transparent !important; margin: 0; padding: 0; }
         
         /* Font Arab Setup untuk Ekspor Word - Dikunci ke Mushaf Madinah secara dinamis proporsional */
-        div.arabic-text, div[dir="rtl"], div[style*="direction: rtl"] { 
+        div.arabic-text, span.arabic-text { 
             font-family: "KFGQPC Uthman Taha Naskh", "Mushaf Madinah", "Traditional Arabic", "Amiri", serif !important; 
-            font-size: 18pt !important; 
-            line-height: 1.5 !important;
-            text-align: right !important; 
+            mso-bidi-font-family: "KFGQPC Uthman Taha Naskh" !important;
             direction: rtl !important;
         }
-        span.arabic-text, span[dir="rtl"], span[style*="direction: rtl"] { 
-            font-family: "KFGQPC Uthman Taha Naskh", "Mushaf Madinah", "Traditional Arabic", "Amiri", serif !important; 
+        div.arabic-text {
+            font-size: 18pt !important; 
+            line-height: 1.8 !important;
+            text-align: right !important; 
+        }
+        span.arabic-text { 
             font-size: 16pt !important; 
-            direction: rtl !important;
         }
     </style>
 </head>
-<body><div class="${currentDocType === 'prosem' ? 'WordSectionProsem' : 'WordSection1'}">${generatedMarkdown.replace(/<div class="page-break"[^>]*>.*?<\/div>/gi, '<br clear="all" style="page-break-before:always" />')}</div></body></html>`;
+<body style="font-family: ${previewFontFamily};"><div class="${currentDocType === 'prosem' ? 'WordSectionProsem' : 'WordSection1'}" style="font-family: ${previewFontFamily};">${processedHtml}</div></body></html>`;
 
             const blob = new Blob(['\ufeff', wordHtml], { type: 'application/msword' });
             const prefix = { modul: "Modul_DeepLearning", cptpatp: "CP_TP_ATP", kktp: "KKTP", prota: "Prota", prosem: "Prosem", kokurikuler: "Modul_P5", soal: "Evaluasi" }[currentDocType] || "Dokumen";
